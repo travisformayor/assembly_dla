@@ -1,0 +1,36 @@
+@startuml Structure
+
+title "DLA Program Structure"
+
+together {
+  package "Main Module" {
+    [init_particles]
+    [main_loop]
+  }
+  
+  package "Particle Module" {
+      [place_particle]
+      [random_wiggle]
+  }
+  
+  package "Helpers Module" {
+    '[console_log]
+    [random_num]
+  }
+}
+
+package "UI Module" {
+  [refresh_display]
+  [show_particle]
+}
+
+init_particles --> place_particle : initialize\n particles
+place_particle --> random_num
+
+main_loop --> random_wiggle : update positions\n and state
+random_wiggle --> random_num
+
+main_loop --> refresh_display : update display\n once per loop
+refresh_display --> show_particle
+
+@enduml
