@@ -8,13 +8,13 @@ The program is organized into different modules:
 
 ### Main Module
 
-  - `init_particles()`: Initialize all of the particles starting position and state.
-    - Setting one particle to "stuck" controls where the aggregate grows from.
-  - `main_loop()`: The main loop for generating particles and refreshing the display.
+  - `main()`: Main calls setting up the particles, then loops for updating particles and refreshing the display.
 
 ### Particle Module
 
-  - `place_particle()`: Places a new particle on the grid.
+  - `init_particles()`: Initialize all of the particles starting position and status
+    - All particles all start with status "unstuck".
+    - Set one particle to status "stuck" to control where the aggregate grows from.
   - `random_wiggle()`: Moves the particle until it sticks to the aggregate structure.
 
 ### UI Module
@@ -28,4 +28,4 @@ The program is organized into different modules:
 
 ## Stretch Goal
 
-- User controls the location of the aggregate seed
+- User controls the location of the aggregate seed (initial stuck particle)

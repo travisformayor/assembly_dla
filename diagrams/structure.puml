@@ -4,13 +4,13 @@ title "DLA Program Structure"
 
 together {
   package "Main Module" {
-    [init_particles]
     [main_loop]
+    [main]
   }
   
   package "Particle Module" {
-      [place_particle]
-      [random_wiggle]
+    [init_particles]
+    [random_wiggle]
   }
   
   package "Helpers Module" {
@@ -24,13 +24,16 @@ package "UI Module" {
   [show_particle]
 }
 
-init_particles --> place_particle : initialize\n particles
-place_particle --> random_num
+' Main Connections
+main --> init_particles : initialize all\n particles
+main_loop --> random_wiggle : update all\n particles
+main_loop --> refresh_display : update display\n once per loop
 
-main_loop --> random_wiggle : update positions\n and state
+' Particle Connections
+init_particles --> random_num : " get random number\n  to set/update position"
 random_wiggle --> random_num
 
-main_loop --> refresh_display : update display\n once per loop
-refresh_display --> show_particle
+' UI Connections
+refresh_display --> show_particle : draw each\n particle on\n the screen
 
 @enduml
