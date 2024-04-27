@@ -18,5 +18,14 @@
     <MASM Include="main.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="particle.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="ui.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="helpers.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
