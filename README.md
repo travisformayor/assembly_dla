@@ -13,16 +13,16 @@ The program is organized into different modules:
 ### Particle Module
 
   - `init_particles()`: Initialize all of the particles starting position and status
-    - All particles all start with status "unstuck".
-    - Set one particle to status "stuck" to control where the aggregate grows from.
+    - All particles all start with status unstuck (0).
+    - Set one particle to status stuck (1) to control where the aggregate grows from.
   - `random_wiggle()`: Moves the particle until it sticks to the aggregate structure.
 
 ### UI Module
 
-  - `show_particle(x, y, state)`: Displays the particle in the grid.
-  - `refresh_display()`: Refreshes the display by showing all of the particles in the grid.
+  - `draw_particle(x, y, state)`: Displays the particle on the screen.
+  - `refresh_display()`: Refreshes the display by showing all of the particles on the screen.
 
-### Helper Module
+### Helpers Module
 
   - `random_num()`: Generates random numbers.
 
