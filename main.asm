@@ -1,5 +1,4 @@
-; Travis Uhrig
-; CSC2025 Final Project
+; Travis Uhrig, CSC2025
 ; DLA (Diffusion-Limited Aggregation) in Assembly
 ; ----------------------------
 ; Date: 04/27/24
@@ -22,9 +21,9 @@ extern   _ExitProcess@4: near
     particleIndex WORD 0 ; current index position when looping particles
 
 .code
-; void main()
+; === void main() ===
 ; Description:
-;   Calls init_particles, then loops main_loop grow and update display
+;   Calls init_particles, then loops main_loop to grow and update display
 ; Registers:
 ;   EBX - Loop counter for particles
 ;   EDX - Temporary storage
@@ -35,6 +34,7 @@ _main:
 _main_loop:
     ; Loop all particles calling random_wiggle to update position and status
     ; call refresh_display in the UI module to update the display
+    ; pause between loops to animate grow
 
 _end_main_loop:
 

@@ -1,5 +1,4 @@
-; Travis Uhrig
-; CSC2025 Final Project
+; Travis Uhrig, CSC2025
 ; DLA (Diffusion-Limited Aggregation) in Assembly
 ; ----------------------------
 ; Date: 04/27/24
@@ -10,12 +9,11 @@
 .model flat
 
 .code
-; void init_particles()
+; === void init_particles() ===
 ; Description:
 ;   Loop the particles and initialize positions
 ;   Set one particle as stuck to act as the growth starting point
-;   No parameters, directly modifies global data
-;   No return, directly modifies global data
+; Parameters: None, directly modifies global data
 ; Registers:
 ;   EAX - Used to store random values for positions
 ;   EBX - Used as counter for loop iterations
@@ -23,21 +21,20 @@
 ;   ESI - Index for the particle initially set as stuck
 init_particles PROC
 
-
     ret
 init_particles ENDP
 
-; void random_wiggle(particle_index: WORD)
-    ; Description:
-    ;   Performs random 1 position movement for a particle
-    ;   Then checks if the particle is now touching a stuck status particle
-    ;   If so, sets particle status as stuck as well
-    ;   No return, directly modifies global data
-    ; Registers:
-    ;   EAX - Particle index for accessing particle data
-    ;   EBX - Used for random movement decisions
-    ;   ECX - Loop counter
-    ;   EDX - Return pointer
+; === void random_wiggle(particle_index: WORD) ===
+; Description:
+;   Performs random 1 position movement for a particle
+;   Then checks if the particle is now touching a stuck status particle
+;   If so, sets particle status as stuck as well
+; Parameters: particle index
+; Registers:
+;   EAX - Particle index for accessing particle data
+;   EBX - Used for random movement decisions
+;   ECX - Loop counter
+;   EDX - Return pointer
 random_wiggle PROC
     pop edx         ; Save the return address
     pop eax         ; Save the particle index in EAX
