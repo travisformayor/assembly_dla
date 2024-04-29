@@ -20,34 +20,37 @@ extern _WriteConsoleA@20: near  ; For console_log
     newLine       db 10     ; 10 = "\n" character which creates a newline
 
 .code
-
-; === void write_string(string_address: DWORD, num_chars: DWORD) ===
+; === DWORD random_num(max_range: DWORD) ===
 ; Description:
-;   Writes a string to the console
-; Parameters:
-;   string_address - Address of the string to write
-;   num_chars - Number of characters to write
+;   Generates a random number within 0 to max_range
+; Parameters: Maximum end of the range (min is default 0)
+; Return: Random number within the range, as EBX
 ; Registers:
-;   EAX - Used for storing the output handle
-;   ECX - Address of the string
+;   EAX - Maximum range for the random number
+;   EBX - Random number generated (return value)
 ;   EDX - Return address
-write_string PROC near
-    call check_console_output   ; Make sure output handler is setup
+;   ECX - Seed address for RtlRandom
+random_num PROC
+    pop edx             ; Save the return address
+    pop eax             ; Save maximum range in EAX
+    push edx            ; Restore return address
 
-    pop edx                     ; Retrieve the return address
-    pop ecx                     ; Get the address of the string
-    pop eax                     ; Get the number of characters
-    push edx                    ; Restore the return address for ret
+    lea ecx, seed       ; Load the address of the seed
+    push ecx            ; Push the address of the seed
+    call _RtlRandomEx@4 ; Call RtlRandomEx
+    ; Now EAX holds the random number
 
-    push 0                      ; Null for WriteConsoleA
-    push offset written         ; Logging num chars written (required)
-    push eax                    ; Number of characters to write
-    push ecx                    ; String to write
-    push outputHandle
-    call _WriteConsoleA@20
+    ; If the maximum range is provided, calculate the number within the range
+    test eax, eax       ; Check if EAX is zero to avoid division error
+    jz finished
+    inc eax             ; Ensure range is inclusive of max_range
+    xor edx, edx        ; Clear EDX before division
+    div dword ptr [esp+4] ; Divide EAX by the value at ESP+4 (max_range) safely
 
+finished:
+    mov ebx, eax        ; Move the result to EBX for return
     ret
-write_string ENDP
+random_num ENDP
 
 ; === void write_integer(integer: DWORD) ===
 ; Description:
@@ -94,6 +97,34 @@ convert_loop:
     ret
 write_integer ENDP
 
+; === void write_string(string_address: DWORD, num_chars: DWORD) ===
+; Description:
+;   Writes a string to the console
+; Parameters:
+;   string_address - Address of the string to write
+;   num_chars - Number of characters to write
+; Registers:
+;   EAX - Used for storing the output handle
+;   ECX - Address of the string
+;   EDX - Return address
+write_string PROC near
+    call check_console_output   ; Make sure output handler is setup
+
+    pop edx                     ; Retrieve the return address
+    pop ecx                     ; Get the address of the string
+    pop eax                     ; Get the number of characters
+    push edx                    ; Restore the return address for ret
+
+    push 0                      ; Null for WriteConsoleA
+    push offset written         ; Logging num chars written (required)
+    push eax                    ; Number of characters to write
+    push ecx                    ; String to write
+    push outputHandle
+    call _WriteConsoleA@20
+
+    ret
+write_string ENDP
+
 ; === void check_console_output() ===
 ; Description:
 ;   Set the console output handle if it hasn't already be set
@@ -126,37 +157,5 @@ new_line PROC
     call write_string 
     ret
 new_line ENDP
-
-; === DWORD random_num(max_range: DWORD) ===
-; Description:
-;   Generates a random number within 0 to max_range
-; Parameters: Maximum end of the range (min is default 0)
-; Return: Randomly selected number within the range
-; Registers:
-;   EAX - Maximum range for the random number
-;   EBX - Random number generated (return value)
-;   EDX - Return address
-;   ECX - Seed address for RtlRandom
-random_num PROC
-    pop edx             ; Save the return address
-    pop eax             ; Save maximum range in EAX
-    push edx            ; Restore return address
-
-    lea ecx, seed       ; Load the address of the seed
-    push ecx            ; Push the address of the seed
-    call _RtlRandomEx@4 ; Call RtlRandomEx
-    ; Now EAX holds the random number
-
-    ; If the maximum range is provided, calculate the number within the range
-    test eax, eax       ; Check if EAX is zero to avoid division error
-    jz finished
-    inc eax             ; Ensure range is inclusive of max_range
-    xor edx, edx        ; Clear EDX before division
-    div dword ptr [esp+4] ; Divide EAX by the value at ESP+4 (max_range) safely
-
-finished:
-    mov ebx, eax        ; Move the result to EBX for return
-    ret
-random_num ENDP
 
 END
