@@ -22,31 +22,32 @@ extern _WriteConsoleA@20: near  ; For console_log
 .code
 ; === DWORD random_num(max_range: DWORD) ===
 ; Description:
-;   Generates a random number within 0 to max_range
+;   Generates a random number within 0 to max_range-1
 ; Parameters: Maximum end of the range (min is default 0)
-; Return: Random number within the range, as EBX
+; Return: Random number within the range, returned in EBX
 ; Registers:
 ;   EAX - Unscaled random number from RtlRandom
 ;   EBX - The scaled random number returned
-;   ECX - Maximum range number
-;   EDX - Return address and then the division remainder
+;   ECX - The max_range for use during division
+;   EDX - Stores return address, then stores the division remainder
 random_num PROC
-    push offset seed     ; Push address of the seed on the stack
-    call _RtlRandomEx@4  ; Call RtlRandomEx
-    ; No cleanup for pushed seed address needed, next pop is the return address
-    ; EAX now contains the unscaled rahndom number 
+    ; RtlRandom modifies EAX, ECX, and EDX so needs to be called before saving parameters
+    ; RtlRandom saves the unscaled random number in EAX
+    push offset seed     ; Push the address of the seed for RtlRandomEx
+    call _RtlRandomEx@4  ; RtlRandomEx is called, cleans up its parameter (the pushed seed)
 
-    pop edx ; Save the return address to edx
-    pop ecx ; Save the max value parameter to ecx
-    push edx ; Add the return address back to the stack
+    ; Now can access the parameter
+    pop edx              ; Pop return address off the stack
+    pop ecx              ; Pop max_range parameter into ECX
+    push edx             ; Push return address back onto the stack for ret
 
-    ; Divide EAX by ECX (max range).
-    xor edx, edx         ; Clear EDX to prepare for for division
-    div ecx              ; Divide EDX:EAX by ECX, remainder in EDX, result in EAX
+    ; Scale the random number (EAX) by dividing it by max range (ECX)
+    ; The remainder is the scaled result
+    xor edx, edx         ; Clear EDX for division
+    div ecx              ; Divide EAX by ECX, result in EAX, remainder in EDX
 
-    mov ebx, edx         ; The remainder (EDX) is the scaled random number. Move to EBX to return
-
-    ret
+    mov ebx, edx         ; Move remainder to EBX to return
+    ret                  ; Return to caller, returning value in EBX
 random_num ENDP
 
 ; === void write_integer(integer: DWORD) ===
