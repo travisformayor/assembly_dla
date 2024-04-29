@@ -61,8 +61,6 @@ random_num ENDP
 ;   ECX - Calculate the string length
 ;   EDX - Return address and division remainder
 write_integer PROC
-    call set_console_output ; Make sure output handler is setup
-
     pop edx                 ; Retrieve the return address from the stack
     pop eax                 ; Get the integer to convert from the stack
     push edx                ; Add the return address back to the stack for ret
@@ -106,7 +104,16 @@ write_integer ENDP
 ;   ECX - Address of the string
 ;   EDX - Return address
 write_string PROC near
-    call set_console_output ; Make sure output handler is setup
+    ; Check if the output handle is set up
+    mov eax, outputHandle       ; Load the current value of outputHandle
+    test eax, eax               ; Test is outputHandle is not zero
+    jnz output_already_set      ; If not zero, output is already set, skip the rest
+
+    ; If outputHandle is zero, get and save the output handle
+    push -11                    ; -11 = standard output handle constant
+    call _GetStdHandle@4
+    mov outputHandle, eax
+output_already_set:
 
     pop edx                 ; Retrieve the return address
     pop ecx                 ; Get the address of the string
@@ -122,27 +129,6 @@ write_string PROC near
 
     ret
 write_string ENDP
-
-; === void set_console_output() ===
-; Description:
-;   Set the console output handle if it hasn't already be set
-; Parameters: None
-; Registers:
-;   EAX - Testing outputHandle and saving the handler
-set_console_output PROC
-    ; Check if the output handle is already set up
-    mov eax, outputHandle       ; Load the current value of outputHandle
-    test eax, eax               ; Test is outputHandle is not zero
-    jnz output_already_set      ; If not zero, output is already set, skip the rest
-
-    ; If outputHandle is zero, get and save the output handle
-    push -11                    ; -11 = standard output handle constant
-    call _GetStdHandle@4
-    mov outputHandle, eax
-
-output_already_set:
-    ret
-set_console_output ENDP
 
 ; === void new_line() ===
 ; Description:
