@@ -8,20 +8,34 @@
 .386P
 .model flat
 
+; Use constants file
+include constants.inc
+
 ; External Windows functions
 extern _GetStdHandle@4: near    ; For console_log
 extern _WriteConsoleA@20: near  ; For console_log
 extern _ExitProcess@4: near
 ; External Module functions
 extern init_particles: near
+extern refresh_display: near
 ; extern random_num: near
 ; extern write_integer: near
-extern refresh_display: near
+; extern new_line: near
+
 
 ; Global variables
 .data
     ; outputHandle  dd ?    ; Console output handle
     testMsg    db "Test Message", 10, 0 ; Test message. adding a 10 creates a newline
+
+    xPositions DWORD numParticles dup(?) ; array of x position for each particle
+    yPositions DWORD numParticles dup(?) ; array of y position for each particle
+    particleStatus BYTE numParticles dup(0) ; array of particle satus. 0 = unstuck (default), 1 = stuck
+
+    ; Set vars public so particle.asm and ui.asm can access them
+    public xPositions
+    public yPositions
+    public particleStatus
 
 .code
 ; === void main() ===
@@ -31,17 +45,10 @@ extern refresh_display: near
 ;   EBX - Loop counter for particles
 main PROC near
 _main:
-    ; Testing console output
-    ; push 5
-    ; call random_num ; Result is stored in ebx
-    ; push eax
-    ; call write_integer
-
-    ; call new_line
-
+  
     call init_particles     ; Setup particle starting positions and status
 
-    call refresh_display    ;
+    call refresh_display    ; Display initial particles
 
     push 0                  ; Exit code
     call _ExitProcess@4     ; Exit the program
