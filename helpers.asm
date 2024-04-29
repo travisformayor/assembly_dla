@@ -22,8 +22,9 @@ extern _WriteConsoleA@20: near  ; For console_log
 .code
 ; === DWORD random_num(max_range: DWORD) ===
 ; Description:
-;   Generates a random number within 0 to max_range
-; Parameters: Maximum end of the range (min is default 0)
+;   Generates a random number from 1 to max_range
+;   Result can include 1 or max_range
+; Parameters: Maximum end of the range (min is 1)
 ; Return: Random number within the range, returned in EBX
 ; Registers:
 ;   EAX - Unscaled random number, then used to return scaled random number returned
@@ -42,10 +43,10 @@ random_num PROC
 
     ; Scale the random number (EAX) by dividing it by max range (ECX)
     ; The remainder is the scaled result
-    inc ecx             ; max_range + 1 needed to return a value between 0 and max_range
     xor edx, edx        ; Clear EDX for division
     div ecx             ; Divide EAX by ECX, result in EAX, remainder in EDX
 
+    inc edx             ; +1 to return a value between 1 and max_range
     mov eax, edx        ; Move remainder to EAX to return the scaled random number
     ret                 ; Return to caller
 random_num ENDP
