@@ -22,7 +22,7 @@ extern _WriteConsoleA@20: near  ; For console_log
 .code
 ; === DWORD random_num(max_range: DWORD) ===
 ; Description:
-;   Generates a random number within 0 to max_range-1
+;   Generates a random number within 0 to max_range
 ; Parameters: Maximum end of the range (min is default 0)
 ; Return: Random number within the range, returned in EBX
 ; Registers:
@@ -33,21 +33,22 @@ extern _WriteConsoleA@20: near  ; For console_log
 random_num PROC
     ; RtlRandom modifies EAX, ECX, and EDX so needs to be called before saving parameters
     ; RtlRandom saves the unscaled random number in EAX
-    push offset seed     ; Push the address of the seed for RtlRandomEx
-    call _RtlRandomEx@4  ; RtlRandomEx is called, cleans up its parameter (the pushed seed)
+    push offset seed    ; Push the address of the seed for RtlRandomEx
+    call _RtlRandomEx@4 ; RtlRandomEx is called, cleans up its parameter (the pushed seed)
 
     ; Now can access the parameter
-    pop edx              ; Pop return address off the stack
-    pop ecx              ; Pop max_range parameter into ECX
-    push edx             ; Push return address back onto the stack for ret
+    pop edx             ; Pop return address off the stack
+    pop ecx             ; Pop max_range parameter into ECX
+    push edx            ; Push return address back onto the stack for ret
 
     ; Scale the random number (EAX) by dividing it by max range (ECX)
     ; The remainder is the scaled result
-    xor edx, edx         ; Clear EDX for division
-    div ecx              ; Divide EAX by ECX, result in EAX, remainder in EDX
+    inc ecx             ; max_range + 1 needed to return a value between 0 and max_range
+    xor edx, edx        ; Clear EDX for division
+    div ecx             ; Divide EAX by ECX, result in EAX, remainder in EDX
 
-    mov ebx, edx         ; Move remainder to EBX to return
-    ret                  ; Return to caller, returning value in EBX
+    mov ebx, edx        ; Move remainder to EBX to return
+    ret                 ; Return to caller, returning value in EBX
 random_num ENDP
 
 ; === void write_integer(integer: DWORD) ===
@@ -61,36 +62,36 @@ random_num ENDP
 ;   ECX - Calculate the string length
 ;   EDX - Return address and division remainder
 write_integer PROC
-    call check_console_output   ; Make sure output handler is setup
+    call set_console_output ; Make sure output handler is setup
 
-    pop edx                     ; Retrieve the return address from the stack
-    pop eax                     ; Get the integer to convert from the stack
-    push edx                    ; Add the return address back to the stack for ret
+    pop edx                 ; Retrieve the return address from the stack
+    pop eax                 ; Get the integer to convert from the stack
+    push edx                ; Add the return address back to the stack for ret
 
-    sub esp, 12                 ; Allocate buffer for string conversion
-    lea ebx, [esp + 11]         ; Set EBX to the end of the buffer
+    sub esp, 12             ; Allocate buffer for string conversion
+    lea ebx, [esp + 11]     ; Set EBX to the end of the buffer
 
-    mov ecx, 10                 ; Set base 10 for conversion
+    mov ecx, 10             ; Set base 10 for conversion
 
 convert_loop:
-    xor edx, edx                ; Clear EDX for div
-    div ecx                     ; Divide EAX by 10, remainder in EDX
-    add dl, '0'                 ; Convert remainder to ASCII character
-    dec ebx                     ; Move back in the buffer
-    mov [ebx], dl               ; Store ASCII character
-    test eax, eax               ; Check if more digits remain
-    jnz convert_loop            ; Continue if there are more digits
+    xor edx, edx            ; Clear EDX for div
+    div ecx                 ; Divide EAX by 10, remainder in EDX
+    add dl, '0'             ; Convert remainder to ASCII character
+    dec ebx                 ; Move back in the buffer
+    mov [ebx], dl           ; Store ASCII character
+    test eax, eax           ; Check if more digits remain
+    jnz convert_loop        ; Continue if there are more digits
 
     ; Calculate the length of the string
-    lea eax, [ebx]              ; Set EAX to the start of the numeric string
-    mov ecx, esp                ; ECX points to the start of the buffer
-    add ecx, 12                 ; Adjust ECX to the end of the buffer space
-    dec ecx                     ; Move back to the last character (null terminator)
-    sub ecx, eax                ; Calculate the length of the string
-    push ecx                    ; Number of characters to write
-    push eax                    ; Address of the string
-    call write_string           ; Output the string
-    add esp, 12                 ; Clean up the buffer space
+    lea eax, [ebx]          ; Set EAX to the start of the numeric string
+    mov ecx, esp            ; ECX points to the start of the buffer
+    add ecx, 12             ; Adjust ECX to the end of the buffer space
+    dec ecx                 ; Move back to the last character (null terminator)
+    sub ecx, eax            ; Calculate the length of the string
+    push ecx                ; Number of characters to write
+    push eax                ; Address of the string
+    call write_string       ; Output the string
+    add esp, 12             ; Clean up the buffer space
 
     ret
 write_integer ENDP
@@ -106,30 +107,30 @@ write_integer ENDP
 ;   ECX - Address of the string
 ;   EDX - Return address
 write_string PROC near
-    call check_console_output   ; Make sure output handler is setup
+    call set_console_output ; Make sure output handler is setup
 
-    pop edx                     ; Retrieve the return address
-    pop ecx                     ; Get the address of the string
-    pop eax                     ; Get the number of characters
-    push edx                    ; Restore the return address for ret
+    pop edx                 ; Retrieve the return address
+    pop ecx                 ; Get the address of the string
+    pop eax                 ; Get the number of characters
+    push edx                ; Restore the return address for ret
 
-    push 0                      ; Null for WriteConsoleA
-    push offset written         ; Logging num chars written (required)
-    push eax                    ; Number of characters to write
-    push ecx                    ; String to write
+    push 0                  ; Null for WriteConsoleA
+    push offset written     ; Logging num chars written (required)
+    push eax                ; Number of characters to write
+    push ecx                ; String to write
     push outputHandle
     call _WriteConsoleA@20
 
     ret
 write_string ENDP
 
-; === void check_console_output() ===
+; === void set_console_output() ===
 ; Description:
 ;   Set the console output handle if it hasn't already be set
 ; Parameters: None
 ; Registers:
 ;   EAX - Testing outputHandle and saving the handler
-check_console_output PROC
+set_console_output PROC
     ; Check if the output handle is already set up
     mov eax, outputHandle       ; Load the current value of outputHandle
     test eax, eax               ; Test is outputHandle is not zero
@@ -142,7 +143,7 @@ check_console_output PROC
 
 output_already_set:
     ret
-check_console_output ENDP
+set_console_output ENDP
 
 ; === void new_line() ===
 ; Description:
