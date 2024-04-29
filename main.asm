@@ -13,23 +13,12 @@ extern _GetStdHandle@4: near    ; For console_log
 extern _WriteConsoleA@20: near  ; For console_log
 extern _ExitProcess@4: near
 ; External Module functions
-extern random_num: near
-extern write_integer: near
-extern write_string: near
-extern new_line: near
+extern init_particles: near
 
 ; Global variables
 .data
-    ; Particle varaibles
-    xPositions DWORD 1000 dup(?) ; array of x position for each particle
-    yPositions DWORD 1000 dup(?) ; array of y position for each particle
-    particleStatus BYTE 1000 dup(0) ; array of particle satus. 0 = unstuck (default), 1 = stuck
-    totalUnstuckParticles DWORD 1000 ; Track how many particles are still unstuck
-    particleIndex DWORD 0 ; current index position when looping particles
-
     ; outputHandle  dd ?    ; Console output handle
     testMsg    db "Test Message", 10, 0 ; Test message. adding a 10 creates a newline
-
 
 .code
 ; === void main() ===
@@ -40,12 +29,14 @@ extern new_line: near
 main PROC near
 _main:
     ; Testing console output
-    push 50
-    call random_num ; Result is stored in ebx
-    push ebx
-    call write_integer
-    
-    call new_line
+    ; push 5
+    ; call random_num ; Result is stored in ebx
+    ; push eax
+    ; call write_integer
+
+    ; call new_line
+
+    call init_particles ; Setup particle starting positions and status
 
     push 0              ; Exit code
     call _ExitProcess@4 ; Exit the program

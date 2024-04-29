@@ -8,18 +8,56 @@
 .386P
 .model flat
 
+; External Module functions
+extern random_num: near
+
+.data
+    ; Set constants
+    xAxis EQU 500       ; Size of the grid's x-axis
+    yAxis EQU 500       ; Size of the grid's y-axis
+    numParticles EQU 10 ; Number of particles
+
+    xPositions DWORD numParticles dup(?) ; array of x position for each particle
+    yPositions DWORD numParticles dup(?) ; array of y position for each particle
+    particleStatus BYTE numParticles dup(0) ; array of particle satus. 0 = unstuck (default), 1 = stuck
+    ; totalUnstuckParticles DWORD 1000 ; Track how many particles are still unstuck
+    ; particleIndex DWORD 0 ; current index position when looping particles
+
 .code
 ; === void init_particles() ===
 ; Description:
-;   Loop the particles and initialize positions
-;   Set one particle as stuck to act as the growth starting point
+;   Loops through all particles and sets their initial positions within the grid
+;   Sets one particle (the first one) as stuck to act as the growth starting point
 ; Parameters: None, directly modifies global data
 ; Registers:
 ;   EAX - Used to store random values for positions
 ;   EBX - Used as counter for loop iterations
 ;   EDX - Return address
-;   ESI - Index for the particle initially set as stuck
 init_particles PROC
+    pop edx         ; Save the return address
+    push edx        ; Restore return address
+
+    ; Loop all the particle array variables
+    xor ebx, ebx    ; EBX = 0 (loop counter)
+
+loop_start:
+    ; Generate random x position
+    push xAxis      ; Push max_range parameter for random_num
+    call random_num ; Returns random number in EAX
+    mov [xPositions + ebx*4], eax  ; Store x position in array
+
+    ; Generate random y position
+    push yAxis     ; Push max_range parameter for random_num
+    call random_num ; Returns random number in EAX
+    mov [yPositions + ebx*4], eax  ; Store y position in array
+
+    ; Increment loop counter and compare to total particles
+    inc ebx
+    cmp ebx, numParticles
+    jl loop_start   ; If less than, continue loop
+
+    ; Set the first particle as stuck
+    mov byte ptr [particleStatus], 1
 
     ret
 init_particles ENDP
