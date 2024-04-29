@@ -14,8 +14,10 @@ together {
   }
   
   package "Helpers Module" {
-    '[console_log]
-    [random_num]
+      [write_integer]
+      [write_string]
+      [random_num]
+      [new_line]
   }
 }
 
@@ -25,15 +27,19 @@ package "UI Module" {
 }
 
 ' Main Connections
-main --> init_particles : initialize all\n particles
-main_loop --> random_wiggle : update all\n particles
-main_loop --> refresh_display : update display\n once per loop
+main --> init_particles : " initialize all\n particles"
+main_loop --> random_wiggle : " update all\n particles"
+main_loop --> refresh_display : "update display\n once per loop"
 
 ' Particle Connections
-init_particles --> random_num : " get random number\n  to set/update position"
-random_wiggle --> random_num
+init_particles --> random_num : "set positions"
+random_wiggle --> random_num : " update positions"
 
 ' UI Connections
-refresh_display --> draw_particle : draw each\n particle on\n the screen
+refresh_display --> draw_particle : "draw each\n particle on\n the screen"
+
+' Helpers Connections
+write_integer -[Hidden]- write_string
+random_num -[Hidden]- new_line
 
 @enduml

@@ -25,6 +25,9 @@ The program is organized into different modules:
 ### Helpers Module
 
   - `random_num()`: Generates random numbers.
+  - `write_integer()`: Writes an integer (as a string) into the console output
+  - `write_string()`: Writes a string into the console output
+  - `new_line()`: Writes a newline character into the console output
 
 ## Stretch Goal
 
