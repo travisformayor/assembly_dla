@@ -26,8 +26,7 @@ extern _WriteConsoleA@20: near  ; For console_log
 ; Parameters: Maximum end of the range (min is default 0)
 ; Return: Random number within the range, returned in EBX
 ; Registers:
-;   EAX - Unscaled random number from RtlRandom
-;   EBX - The scaled random number returned
+;   EAX - Unscaled random number, then used to return scaled random number returned
 ;   ECX - The max_range for use during division
 ;   EDX - Stores return address, then stores the division remainder
 random_num PROC
@@ -47,8 +46,8 @@ random_num PROC
     xor edx, edx        ; Clear EDX for division
     div ecx             ; Divide EAX by ECX, result in EAX, remainder in EDX
 
-    mov ebx, edx        ; Move remainder to EBX to return
-    ret                 ; Return to caller, returning value in EBX
+    mov eax, edx        ; Move remainder to EAX to return the scaled random number
+    ret                 ; Return to caller
 random_num ENDP
 
 ; === void write_integer(integer: DWORD) ===
