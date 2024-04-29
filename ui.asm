@@ -9,16 +9,16 @@
 .model flat
 
 .code
-; === void refresh_display() ===
-; Description:
-;   Loops drawing all of the particles to update the screen.
-; Parameters: None, directly accesses global data
-; Registers:
-;   EBX - Loop counter for particles
-refresh_display PROC
+; ; === void refresh_display() ===
+; ; Description:
+; ;   Loops drawing all of the particles to update the screen.
+; ; Parameters: None, directly accesses global data
+; ; Registers:
+; ;   EBX - Loop counter for particles
+; refresh_display PROC
 
-    ret
-refresh_display ENDP
+;     ret
+; refresh_display ENDP
 
 ; === void draw_particle(x: DWORD, y: DWORD, state: BYTE) ===
 ; Description:

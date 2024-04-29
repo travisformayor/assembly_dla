@@ -14,6 +14,9 @@ extern _WriteConsoleA@20: near  ; For console_log
 extern _ExitProcess@4: near
 ; External Module functions
 extern init_particles: near
+; extern random_num: near
+; extern write_integer: near
+extern refresh_display: near
 
 ; Global variables
 .data
@@ -36,10 +39,12 @@ _main:
 
     ; call new_line
 
-    call init_particles ; Setup particle starting positions and status
+    call init_particles     ; Setup particle starting positions and status
 
-    push 0              ; Exit code
-    call _ExitProcess@4 ; Exit the program
+    call refresh_display    ;
+
+    push 0                  ; Exit code
+    call _ExitProcess@4     ; Exit the program
 
 
     ; program area:
