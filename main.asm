@@ -40,14 +40,12 @@ extern new_line: near
 main PROC near
 _main:
     ; Testing console output
-    push 200
+    push 50
+    call random_num ; Result is stored in ebx
+    push ebx
     call write_integer
-
+    
     call new_line
-
-    push  30
-    push  offset testMsg
-    call  write_string
 
     push 0              ; Exit code
     call _ExitProcess@4 ; Exit the program

@@ -26,29 +26,26 @@ extern _WriteConsoleA@20: near  ; For console_log
 ; Parameters: Maximum end of the range (min is default 0)
 ; Return: Random number within the range, as EBX
 ; Registers:
-;   EAX - Maximum range for the random number
-;   EBX - Random number generated (return value)
-;   EDX - Return address
-;   ECX - Seed address for RtlRandom
+;   EAX - Unscaled random number from RtlRandom
+;   EBX - The scaled random number returned
+;   ECX - Maximum range number
+;   EDX - Return address and then the division remainder
 random_num PROC
-    pop edx             ; Save the return address
-    pop eax             ; Save maximum range in EAX
-    push edx            ; Restore return address
+    push offset seed     ; Push address of the seed on the stack
+    call _RtlRandomEx@4  ; Call RtlRandomEx
+    ; No cleanup for pushed seed address needed, next pop is the return address
+    ; EAX now contains the unscaled rahndom number 
 
-    lea ecx, seed       ; Load the address of the seed
-    push ecx            ; Push the address of the seed
-    call _RtlRandomEx@4 ; Call RtlRandomEx
-    ; Now EAX holds the random number
+    pop edx ; Save the return address to edx
+    pop ecx ; Save the max value parameter to ecx
+    push edx ; Add the return address back to the stack
 
-    ; If the maximum range is provided, calculate the number within the range
-    test eax, eax       ; Check if EAX is zero to avoid division error
-    jz finished
-    inc eax             ; Ensure range is inclusive of max_range
-    xor edx, edx        ; Clear EDX before division
-    div dword ptr [esp+4] ; Divide EAX by the value at ESP+4 (max_range) safely
+    ; Divide EAX by ECX (max range).
+    xor edx, edx         ; Clear EDX to prepare for for division
+    div ecx              ; Divide EDX:EAX by ECX, remainder in EDX, result in EAX
 
-finished:
-    mov ebx, eax        ; Move the result to EBX for return
+    mov ebx, edx         ; The remainder (EDX) is the scaled random number. Move to EBX to return
+
     ret
 random_num ENDP
 
@@ -65,9 +62,9 @@ random_num ENDP
 write_integer PROC
     call check_console_output   ; Make sure output handler is setup
 
-    pop edx                     ; Retrieve the return address
-    pop eax                     ; Get the integer to convert
-    push edx                    ; Restore the return address
+    pop edx                     ; Retrieve the return address from the stack
+    pop eax                     ; Get the integer to convert from the stack
+    push edx                    ; Add the return address back to the stack for ret
 
     sub esp, 12                 ; Allocate buffer for string conversion
     lea ebx, [esp + 11]         ; Set EBX to the end of the buffer
