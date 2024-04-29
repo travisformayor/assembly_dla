@@ -3,7 +3,7 @@
 ; ----------------------------
 ; Date: 04/28/24
 ; Description: The UI Module. Contains functions to update the 
-; screen by drawing each particle's current position
+; screen by drawing each particle's current position.
 
 .386P
 .model flat
@@ -20,7 +20,7 @@ refresh_display PROC
     ret
 refresh_display ENDP
 
-; === void draw_particle(x: WORD, y: WORD, state: BYTE) ===
+; === void draw_particle(x: DWORD, y: DWORD, state: BYTE) ===
 ; Description:
 ;   Draws a particle at a given location. Uses a different symbol 
 ;   if the state is unstuck (0) or stuck (1).
@@ -29,7 +29,7 @@ refresh_display ENDP
 ;   EAX - x position of the particle
 ;   EBX - y position of the particle
 ;   ECX - Stuck state
-;   EDX - Return pointer
+;   EDX - Return address
 show_particle PROC
     pop edx         ; Save the return address
     pop eax         ; Save x position in EAX
@@ -41,3 +41,5 @@ show_particle PROC
 
     ret
 show_particle ENDP
+
+END

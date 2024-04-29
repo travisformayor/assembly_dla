@@ -3,7 +3,7 @@
 ; ----------------------------
 ; Date: 04/27/24
 ; Description: The Particle Module. Contains functions to setup particle
-; initial conditions and wiggle and update particle status (stuck or unstuck)
+; initial conditions and wiggle and update particle status (stuck or unstuck).
 
 .386P
 .model flat
@@ -17,14 +17,14 @@
 ; Registers:
 ;   EAX - Used to store random values for positions
 ;   EBX - Used as counter for loop iterations
-;   EDX - Return pointer
+;   EDX - Return address
 ;   ESI - Index for the particle initially set as stuck
 init_particles PROC
 
     ret
 init_particles ENDP
 
-; === void random_wiggle(particle_index: WORD) ===
+; === void random_wiggle(particle_index: DWORD) ===
 ; Description:
 ;   Performs random 1 position movement for a particle
 ;   Then checks if the particle is now touching a stuck status particle
@@ -34,7 +34,7 @@ init_particles ENDP
 ;   EAX - Particle index for accessing particle data
 ;   EBX - Used for random movement decisions
 ;   ECX - Loop counter
-;   EDX - Return pointer
+;   EDX - Return address
 random_wiggle PROC
     pop edx         ; Save the return address
     pop eax         ; Save the particle index in EAX
@@ -42,3 +42,5 @@ random_wiggle PROC
 
     ret
 random_wiggle ENDP
+
+END

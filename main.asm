@@ -3,22 +3,33 @@
 ; ----------------------------
 ; Date: 04/27/24
 ; Description: The Main Module. Calls setting initial state of 
-; the particles, then loops to update positions and refresh the display
+; the particles, then loops to update positions and refresh the display.
 
 .386P
 .model flat
 
-; External functions
-extern   _ExitProcess@4: near
+; External Windows functions
+extern _GetStdHandle@4: near    ; For console_log
+extern _WriteConsoleA@20: near  ; For console_log
+extern _ExitProcess@4: near
+; External Module functions
+extern random_num: near
+extern write_integer: near
+extern write_string: near
+extern new_line: near
 
-; Program variables
+; Global variables
 .data
-    ; Particle Arrays
-    xPositions WORD 1000 dup(?) ; x position for each particle
-    yPositions WORD 1000 dup(?) ; y position for each particle
-    particleStatus BYTE 1000 dup(0) ; 0 = unstuck, 1 = stuck. Start all as unstuck.
-    totalUnstuckParticles WORD 1000 ; Track how many particles are still unstuck
-    particleIndex WORD 0 ; current index position when looping particles
+    ; Particle varaibles
+    xPositions DWORD 1000 dup(?) ; array of x position for each particle
+    yPositions DWORD 1000 dup(?) ; array of y position for each particle
+    particleStatus BYTE 1000 dup(0) ; array of particle satus. 0 = unstuck (default), 1 = stuck
+    totalUnstuckParticles DWORD 1000 ; Track how many particles are still unstuck
+    particleIndex DWORD 0 ; current index position when looping particles
+
+    ; outputHandle  dd ?    ; Console output handle
+    testMsg    db "Test Message", 10, 0 ; Test message. adding a 10 creates a newline
+
 
 .code
 ; === void main() ===
@@ -26,9 +37,23 @@ extern   _ExitProcess@4: near
 ;   Calls init_particles, then loops main_loop to grow and update display
 ; Registers:
 ;   EBX - Loop counter for particles
-;   EDX - Temporary storage
 main PROC near
 _main:
+    ; Testing console output
+    push 200
+    call write_integer
+
+    call new_line
+
+    push  30
+    push  offset testMsg
+    call  write_string
+
+    push 0              ; Exit code
+    call _ExitProcess@4 ; Exit the program
+
+
+    ; program area:
 	; call init_particles in particle module
 
 _main_loop:
