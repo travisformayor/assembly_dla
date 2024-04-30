@@ -13,14 +13,16 @@ The program is organized into different modules:
 ### Particle Module
 
   - `init_particles()`: Initialize all of the particles starting position and status
-    - All particles all start with status unstuck (0).
-    - Set one particle to status stuck (1) to control where the aggregate grows from.
-  - `random_wiggle()`: Moves the particle until it sticks to the aggregate structure.
+    - All particles all start with status unstuck (0)
+    - Set one particle to status stuck (1) to control where the aggregate grows from
+  - `random_wiggle()`: Moves the particle until it sticks to the aggregate structure
 
 ### UI Module
 
-  - `render_particle(index)`: Adds a particle and its status to the screen buffer.
-  - `refresh_display()`: Refreshes the display with an updated screen buffer.
+  - `refresh_display()`: Refreshes the display with an updated screen buffer
+  - `render_particle(index)`: Adds a particle and its status to the screen buffer
+  - `check_touching(index)`: Look at a particle's neighboring coord
+  - `is_stuck(x, y)`: Search for stuck particles at the given coords
 
 ### Helpers Module
 
@@ -29,4 +31,4 @@ The program is organized into different modules:
 
 ## Stretch Goal
 
-- User controls the location of the aggregate seed (initial stuck particle)
+- User controls: repeat with seed in center, repeat with seeds on bottom row

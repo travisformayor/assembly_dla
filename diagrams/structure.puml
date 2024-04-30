@@ -2,40 +2,47 @@
 
 title "DLA Program Structure"
 
+package "Main Module" {
+  [main_loop]
+  [main]
+}
+
+package "Particle Module" {
+  [init_particles]
+  [random_wiggle]
+  [check_touching]
+  [is_stuck]
+}
+
 together {
-  package "Main Module" {
-    [main_loop]
-    [main]
-  }
-  
-  package "Particle Module" {
-    [init_particles]
-    [random_wiggle]
+  package "UI Module" {
+    [refresh_display]
+    [render_particle]
   }
   
   package "Helpers Module" {
-      [write_string]
       [random_num]
+      [write_string]
   }
 }
 
-package "UI Module" {
-  [refresh_display]
-  [render_particle]
-}
-
 ' Main Connections
-main --> init_particles : " initialize all\n particles"
-main_loop --> random_wiggle : " update all\n particles"
-main_loop --> refresh_display : "update display\n once per loop"
+main --> init_particles : "initialize\n particles"
+main_loop --> random_wiggle : "update\n particles"
+main_loop --> refresh_display : "update\n   display"
 
 ' Particle Connections
-init_particles --> random_num : "set positions"
-random_wiggle --> random_num : " update positions"
+init_particles --> random_num
+random_wiggle --> random_num : "position\n data"
+random_wiggle --> check_touching : "check\n neighboring\n coord"
+
+check_touching --> is_stuck : "search for\n stuck particles\n at coords"
 
 ' UI Connections
-refresh_display --> render_particle : "draw each\n particle on\n the screen"
+refresh_display --> render_particle : "add particle\n to screen\n buffer"
+refresh_display --> write_string
 
 ' Helpers Connections
+random_num -[Hidden]- write_string
 
 @enduml
