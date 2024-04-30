@@ -120,18 +120,16 @@ render_particle PROC
     mov ecx, [yPositions + eax*4]
 
     ; Store the particles status character in dl
-    xor edx, edx                   ; Zero out EDX. DL is the lower 8-bits of EDX
-    ; mov dl, [externPStatus + eax] ; Retrieve the the status byte (0 or 1)
-    mov dl, byte ptr [particleStatus + eax]  ; Load the status byte at the index into dl
+    xor edx, edx                            ; Zero out EDX. DL is the lower 8-bits of EDX
+    mov dl, byte ptr [particleStatus + eax] ; Load the status byte at the index into dl
 
-    cmp dl, 0                      ; Compare if particle is unstuck (0)
+    cmp dl, 0               ; Compare if particle is unstuck (0)
     je _display_unstuck
-    ; mov dl, 'o'                    ; Replace 1 with char for stuck particle
     mov dl, stuckSymbol     ; Replace 1 with char for stuck particle
     jmp _update_buffer
 
 _display_unstuck:
-    mov dl, unstuckSymbol                    ; Replace 0 with char for unstuck particle
+    mov dl, unstuckSymbol   ; Replace 0 with char for unstuck particle
 
 _update_buffer:
     ; Calculate index for a linear version of a 2D array
@@ -139,7 +137,7 @@ _update_buffer:
     mov esi, ecx                   ; Store y position in ESI
     imul esi, esi, xAxis           ; ESI = y * width
     add esi, ebx                   ; ESI = y * width + x
-    mov [screenBuffer + esi], dl   ; Place character in buffer at index
+    mov [screenBuffer + esi], dl   ; Place character at screenBuffer index
 
     ret
 render_particle ENDP

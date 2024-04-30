@@ -2,8 +2,8 @@
 ; DLA (Diffusion-Limited Aggregation) in Assembly
 ; ----------------------------
 ; Date: 04/27/24
-; Description: The Main Module. Calls setting initial state of 
-; the particles, then loops to update positions and refresh the display.
+; Description: The Main Module. Calls setting initial state of the particles, 
+; then loops to update positions and refresh the display.
 
 .386P
 .model flat
@@ -19,25 +19,20 @@ extern _SetConsoleCursorPosition@8: near
 
 ; External Module functions
 extern init_particles: near
-extern refresh_display: near
 extern random_wiggle: near
-; extern write_string: near
-
+extern refresh_display: near
 
 ; Global variables
 .data
-    ; outputHandle  dd ?    ; Console output handle
-    testMsg    db "Test Message", 10, 0 ; Test message. adding a 10 creates a newline
-    newMsg    db "New********", 10, 0 ; Test message. adding a 10 creates a newline
     outputHandle dd 0
 
     xPositions DWORD numParticles dup(?) ; array of x position for each particle
     yPositions DWORD numParticles dup(?) ; array of y position for each particle
     particleStatus BYTE numParticles dup(0) ; array of particle satus. 0 = unstuck (default), 1 = stuck
-    stuckCount DWORD 0 ; counter for how many particles are now stuck
-
+    
+    stuckCount DWORD 0 ; counter for how many particles are now stuck during the loop
     wiggleIndex DWORD 0 ; current loop count as particles wiggle
-    particleIndex DWORD 0 ; current index position when looping particles
+    particleIndex DWORD 0 ; current particle index when looping wiggle
 
     ; Set vars public so particle.asm and ui.asm can access them
     public xPositions
