@@ -15,7 +15,7 @@ The program is organized into different modules
 
 <!-- SVG Image -->
 <p align="center">
-  <img src="diagrams/structure.svg" width="50%" alt="Program Structure Diagram"/>
+  <img src="diagrams/structure.svg" width="70%" alt="Program Structure Diagram"/>
 </p>
 
 ### Main Module
