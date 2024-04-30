@@ -6,16 +6,16 @@
 </p>
 
 ## Overview
-Diffusion-Limited Aggregation is an algorithm builds complex organic branching structures by diffusion. It mirrors effects seen in structures like mineral deposits and crystal dendrites, and can also be used in generative artwork.
+[Diffusion-Limited Aggregation](https://en.wikipedia.org/wiki/Diffusion-limited_aggregation) is an algorithm builds complex organic branching structures by diffusion. It mirrors effects seen in structures like mineral deposits and crystal dendrites, and can also be used in generative artwork.
 
 Brownian Tree versions uses particles that randomly "wiggle" until they touch and stick to a larger structure of particles. This grows the structure as particles interact with it, diffusing it through the space. This project implements a version of DLA in assembly code.
 
 ## Modules
-The program is organized into different modules:
+The program is organized into different modules
 
 <!-- SVG Image -->
 <p align="center">
-  <img src="diagrams/structure.svg" width="80%" alt="Program Structure Diagram"/>
+  <img src="diagrams/structure.svg" width="50%" alt="Program Structure Diagram"/>
 </p>
 
 ### Main Module
@@ -40,7 +40,3 @@ The program is organized into different modules:
 
   - `int random_num(max_range)`: Generates random numbers
   - `void write_string(string)`: Writes a string into the console output
-
-## Stretch Goal
-
-- Add user controls: repeat with seed in center, repeat with seeds on bottom row
