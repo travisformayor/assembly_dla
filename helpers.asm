@@ -15,9 +15,9 @@ extern _WriteConsoleA@20: near
 extern _RtlRandomEx@4:near
 
 .data
-    seed dd 12345678h       ; Seed value for RtlRandomEx     
-    outputHandle  dd 0      ; Console output habndler
-    written       dd ?      ; Number of characters written to the console
+    seed dd 12345678h           ; Seed value for RtlRandomEx     
+    outputHandle  dd 0          ; Console output habndler
+    written       dd ?          ; Number of characters written to the console
 
 .code
 ; === DWORD random_num(max_range: DWORD) ===
@@ -33,22 +33,22 @@ extern _RtlRandomEx@4:near
 random_num PROC
     ; RtlRandom modifies EAX, ECX, and EDX so needs to be called before saving parameters
     ; RtlRandom saves the unscaled random number in EAX
-    push offset seed    ; Push the address of the seed for RtlRandomEx
-    call _RtlRandomEx@4 ; RtlRandomEx is called, cleans up its parameter (the pushed seed)
+    push offset seed            ; Push the address of the seed for RtlRandomEx
+    call _RtlRandomEx@4         ; RtlRandomEx is called, cleans up its parameter (the pushed seed)
 
     ; Now can access the parameter
-    pop edx             ; Pop return address off the stack
-    pop ecx             ; Pop max_range parameter into ECX
-    push edx            ; Push return address back onto the stack for ret
+    pop edx                     ; Pop return address off the stack
+    pop ecx                     ; Pop max_range parameter into ECX
+    push edx                    ; Push return address back onto the stack for ret
 
     ; Scale the random number (EAX) by dividing it by max range (ECX)
     ; The remainder is the scaled result
-    xor edx, edx        ; Clear EDX for division
-    div ecx             ; Divide EAX by ECX, result in EAX, remainder in EDX
+    xor edx, edx                ; Clear EDX for division
+    div ecx                     ; Divide EAX by ECX, result in EAX, remainder in EDX
 
-    inc edx             ; +1 to return a value between 1 and max_range
-    mov eax, edx        ; Move remainder to EAX to return the scaled random number
-    ret                 ; Return to caller
+    inc edx                     ; +1 to return a value between 1 and max_range
+    mov eax, edx                ; Move remainder to EAX to return the scaled random number
+    ret                         ; Return to caller
 random_num ENDP
 
 ; === void write_string(string_address: DWORD, num_chars: DWORD) ===
@@ -58,14 +58,14 @@ random_num ENDP
 ;   string_address - Address of the string to write
 ;   num_chars - Number of characters to write
 ; Registers:
-;   EAX - Used for storing the output handle
+;   EAX - Storing the output handle and number of characters to write
 ;   ECX - Address of the string
 ;   EDX - Return address
 write_string PROC near
     ; Check if the output handle is set up
     mov eax, outputHandle       ; Load the current value of outputHandle
-    test eax, eax               ; Test is outputHandle is not zero
-    jnz _output_already_set      ; If not zero, output is already set, skip the rest
+    test eax, eax               ; Test if outputHandle is not zero
+    jnz _output_already_set     ; If not zero, output is already set, skip the rest
 
     ; If outputHandle is zero, get and save the output handle
     push -11                    ; -11 = standard output handle constant
@@ -73,15 +73,15 @@ write_string PROC near
     mov outputHandle, eax
 _output_already_set:
 
-    pop edx                 ; Retrieve the return address
-    pop ecx                 ; Get the address of the string
-    pop eax                 ; Get the number of characters
-    push edx                ; Restore the return address for ret
+    pop edx                     ; Retrieve the return address
+    pop ecx                     ; Get the address of the string
+    pop eax                     ; Get the number of characters
+    push edx                    ; Restore the return address for ret
 
-    push 0                  ; Null for WriteConsoleA
-    push offset written     ; Logging num chars written (required)
-    push eax                ; Number of characters to write
-    push ecx                ; String to write
+    push 0                      ; Null for WriteConsoleA
+    push offset written         ; Logging num chars written (required)
+    push eax                    ; Number of characters to write
+    push ecx                    ; String to write
     push outputHandle
     call _WriteConsoleA@20
 
