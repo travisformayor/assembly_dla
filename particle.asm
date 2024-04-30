@@ -156,7 +156,7 @@ _move_right: ; Move particle right
 _check_stuck:
     ; Check if the particle is touching a stuck particles
     push particleIndex                       ; Pass particle index
-    call check_touching_stuck
+    call check_touching
     ; pop particleIndex                        ; Restore index
     cmp eax, 1                     ; Check if any adjacent particles are stuck
     jne _dont_stick
@@ -172,15 +172,17 @@ _dont_move:
     ret                              ; Return to caller
 random_wiggle ENDP
 
-; === BOOL check_touching_stuck(particle_index: DWORD) ===
+; === BOOL check_touching(particle_index: DWORD) ===
 ; Description:
 ;   Checks if any adjacent particles (up, down, left, right) are stuck
 ; Parameters: Particle index
 ; Return: 1 if any adjacent particle is stuck, otherwise 0
 ; Registers:
-;   EAX, EBX, ECX used for calculations and conditions
-;   Uses global arrays: xPositions, yPositions, particleStatus
-check_touching_stuck PROC
+;   EAX - Returned bool from "is_stuck?", returned bool for this function
+;   EBX - x position for each checked particle
+;   ECX - Loop index for checking all particles
+;   EDX - y position for each checked particle
+check_touching PROC
     ; Load particle index into EBX
     pop ebx                  ; Pop return address
     pop ecx                  ; Pop particle index into ECX
@@ -247,7 +249,7 @@ _found_stuck:
 _return:
     ret
 
-check_touching_stuck ENDP
+check_touching ENDP
 
 ; === BOOL is_stuck(x: DWORD, y: DWORD) ===
 ; Description:
