@@ -9,9 +9,10 @@
 
 includelib ntdll.lib
 
-extern _RtlRandomEx@4:near      ; For random_num (Rtl = Run-Time Library)
-extern _GetStdHandle@4: near    ; For console_log
-extern _WriteConsoleA@20: near  ; For console_log
+; External Windows functions
+extern _GetStdHandle@4: near
+extern _WriteConsoleA@20: near
+extern _RtlRandomEx@4:near
 
 .data
     seed dd 12345678h       ; Seed value for RtlRandomEx     
@@ -71,14 +72,14 @@ write_integer PROC
 
     mov ecx, 10             ; Set base 10 for conversion
 
-convert_loop:
+_convert_loop:
     xor edx, edx            ; Clear EDX for div
     div ecx                 ; Divide EAX by 10, remainder in EDX
     add dl, '0'             ; Convert remainder to ASCII character
     dec ebx                 ; Move back in the buffer
     mov [ebx], dl           ; Store ASCII character
     test eax, eax           ; Check if more digits remain
-    jnz convert_loop        ; Continue if there are more digits
+    jnz _convert_loop        ; Continue if there are more digits
 
     ; Calculate the length of the string
     lea eax, [ebx]          ; Set EAX to the start of the numeric string
@@ -108,13 +109,13 @@ write_string PROC near
     ; Check if the output handle is set up
     mov eax, outputHandle       ; Load the current value of outputHandle
     test eax, eax               ; Test is outputHandle is not zero
-    jnz output_already_set      ; If not zero, output is already set, skip the rest
+    jnz _output_already_set      ; If not zero, output is already set, skip the rest
 
     ; If outputHandle is zero, get and save the output handle
     push -11                    ; -11 = standard output handle constant
     call _GetStdHandle@4
     mov outputHandle, eax
-output_already_set:
+_output_already_set:
 
     pop edx                 ; Retrieve the return address
     pop ecx                 ; Get the address of the string

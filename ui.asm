@@ -14,7 +14,6 @@ include constants.inc
 ; External Module functions
 extern write_string: near
 
-
 .data
     ; External global particle variables
     extern xPositions:DWORD
@@ -52,7 +51,7 @@ refresh_display PROC
 
     ; Add a '|' at the beginning and end of each row
     xor ecx, ecx                 ; Reset counter for rows
-add_borders:
+_add_borders:
     mov edi, offset screenBuffer ; Reset pointer to the start of the buffer
     mov eax, ecx
     imul eax, eax, xAxis         ; Calculate the starting index of the current row
@@ -62,7 +61,7 @@ add_borders:
     mov byte ptr [edi + xAxis - 1], 10 ; Set last character of the row to the newLine symbol
     inc ecx                      ; Increment row counter
     cmp ecx, yAxis               ; Compare row counter with the total number of rows
-    jl add_borders               ; Continue loop if more rows are left
+    jl _add_borders               ; Continue loop if more rows are left
 
     ; Add a bottom border
     mov edi, offset screenBuffer ; Reset pointer to the start of the buffer
@@ -78,13 +77,13 @@ add_borders:
     ; Loop each particle and add to the screenBuffer with draw_particle
     mov particleIndex, 0            ; Initialize loop counter (particle index)
 
-loop_start:
+_loop_start:
     push particleIndex              ; Add index parameter to draw_particle call
     call draw_particle              ; Draw the particle at the index
 
     inc particleIndex               ; Increment the particle index
     cmp particleIndex, numParticles ; Compare current index with total particles
-    jl loop_start                   ; Loop until all particles are processed
+    jl _loop_start                   ; Loop until all particles are processed
 
     ; Write the entire screen buffer to the console
     pusha                   ; TODO: what? Save all registers
@@ -125,14 +124,14 @@ draw_particle PROC
     mov dl, byte ptr [particleStatus + eax]  ; Load the status byte at the index into dl
 
     cmp dl, 0                      ; Compare if particle is unstuck (0)
-    je display_unstuck
+    je _display_unstuck
     mov dl, '*'                    ; Replace 1 with char for stuck particle
-    jmp update_buffer
+    jmp _update_buffer
 
-display_unstuck:
+_display_unstuck:
     mov dl, 'o'                    ; Replace 0 with char for unstuck particle
 
-update_buffer:
+_update_buffer:
     ; Calculate index for a linear version of a 2D array
     ; Linear Index = (Y * W) + X 
     mov esi, ecx                   ; Store y position in ESI

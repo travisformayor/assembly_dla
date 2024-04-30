@@ -19,14 +19,14 @@ The program is organized into different modules:
 
 ### UI Module
 
-  - `draw_particle(x, y, state)`: Displays the particle on the screen.
+  - `draw_particle(index)`: Displays the particle on the screen.
   - `refresh_display()`: Refreshes the display by showing all of the particles on the screen.
 
 ### Helpers Module
 
-  - `random_num()`: Generates random numbers.
-  - `write_integer()`: Writes an integer (as a string) into the console output
-  - `write_string()`: Writes a string into the console output
+  - `random_num(max_range)`: Generates random numbers.
+  - `write_integer(integer)`: Writes an integer (as a string) into the console output
+  - `write_string(string)`: Writes a string into the console output
   - `new_line()`: Writes a newline character into the console output
 
 ## Stretch Goal
