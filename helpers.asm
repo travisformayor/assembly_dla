@@ -52,49 +52,6 @@ random_num PROC
     ret                 ; Return to caller
 random_num ENDP
 
-; === void write_integer(integer: DWORD) ===
-; Description:
-;   Writes an integer to the console by first converting it to a string
-; Parameters:
-;   integer - Integer to convert and write
-; Registers:
-;   EAX - Integer to convert and used in division
-;   EBX - ASCII conversion and stores start of the string
-;   ECX - Calculate the string length
-;   EDX - Return address and division remainder
-write_integer PROC
-    pop edx                 ; Retrieve the return address from the stack
-    pop eax                 ; Get the integer to convert from the stack
-    push edx                ; Add the return address back to the stack for ret
-
-    sub esp, 12             ; Allocate buffer for string conversion
-    lea ebx, [esp + 11]     ; Set EBX to the end of the buffer
-
-    mov ecx, 10             ; Set base 10 for conversion
-
-_convert_loop:
-    xor edx, edx            ; Clear EDX for div
-    div ecx                 ; Divide EAX by 10, remainder in EDX
-    add dl, '0'             ; Convert remainder to ASCII character
-    dec ebx                 ; Move back in the buffer
-    mov [ebx], dl           ; Store ASCII character
-    test eax, eax           ; Check if more digits remain
-    jnz _convert_loop        ; Continue if there are more digits
-
-    ; Calculate the length of the string
-    lea eax, [ebx]          ; Set EAX to the start of the numeric string
-    mov ecx, esp            ; ECX points to the start of the buffer
-    add ecx, 12             ; Adjust ECX to the end of the buffer space
-    dec ecx                 ; Move back to the last character (null terminator)
-    sub ecx, eax            ; Calculate the length of the string
-    push ecx                ; Number of characters to write
-    push eax                ; Address of the string
-    call write_string       ; Output the string
-    add esp, 12             ; Clean up the buffer space
-
-    ret
-write_integer ENDP
-
 ; === void write_string(string_address: DWORD, num_chars: DWORD) ===
 ; Description:
 ;   Writes a string to the console

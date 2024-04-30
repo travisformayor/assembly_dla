@@ -14,7 +14,6 @@ include constants.inc
 ; External Module functions
 extern random_num: near
 extern write_string: near
-extern write_integer: near
 extern new_line: near
 
 .data
