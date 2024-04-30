@@ -22,11 +22,12 @@ extern write_string: near
 
     ; UI variables
     particleIndex DWORD 0 ; current index position when looping particles
-    ; screenBuffer is a linear version of a 2D array
-    screenBuffer BYTE xAxis * yAxis dup(' ') ; Initialize buffer with spaces
+    screenBuffer BYTE xAxis * yAxis dup(' ') ; linear version of a 2D array, filled with spaces
+    ; DLA Symbols
+    stuckSymbol BYTE "o"  ; Unicode for Medium Black Circle
+    unstuckSymbol BYTE "."  ; Unicode for Medium Black Circle
 
 .code
-
 ; === void refresh_display() ===
 ; Description:
 ;   Sets up the screenBuffer (clear + border), loops the
@@ -125,11 +126,12 @@ draw_particle PROC
 
     cmp dl, 0                      ; Compare if particle is unstuck (0)
     je _display_unstuck
-    mov dl, 'o'                    ; Replace 1 with char for stuck particle
+    ; mov dl, 'o'                    ; Replace 1 with char for stuck particle
+    mov dl, stuckSymbol     ; Replace 1 with char for stuck particle
     jmp _update_buffer
 
 _display_unstuck:
-    mov dl, '.'                    ; Replace 0 with char for unstuck particle
+    mov dl, unstuckSymbol                    ; Replace 0 with char for unstuck particle
 
 _update_buffer:
     ; Calculate index for a linear version of a 2D array
