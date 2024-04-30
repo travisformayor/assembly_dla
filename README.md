@@ -8,26 +8,26 @@ The program is organized into different modules:
 
 ### Main Module
 
-  - `main()`: Main calls setting up the particles, then loops for updating particles and refreshing the display.
+  - `void main()`: Initializes the program, loops and updates each particle, then refreshes the display
 
 ### Particle Module
 
-  - `init_particles()`: Initialize all of the particles starting position and status
+  - `void init_particles()`: Initialize all of the particles starting position and status
     - All particles all start with status unstuck (0)
-    - Set one particle to status stuck (1) to control where the aggregate grows from
-  - `random_wiggle()`: Moves the particle until it sticks to the aggregate structure
+    - Set a particle status to stuck (1) to control the aggregate growth point
+  - `void random_wiggle()`: Moves the particle until it sticks to the aggregate structure
+  - `bool check_touching(particle_index)`: Checks each neighboring coord (up, down, left, right)
+  - `bool is_stuck(x, y)`: Searches for an stuck particles at the given coords
 
 ### UI Module
 
-  - `refresh_display()`: Refreshes the display with an updated screen buffer
-  - `render_particle(index)`: Adds a particle and its status to the screen buffer
-  - `check_touching(index)`: Look at a particle's neighboring coord
-  - `is_stuck(x, y)`: Search for stuck particles at the given coords
+  - `void refresh_display()`: Refreshes the display with an updated screen buffer
+  - `void render_particle(particle_index)`: Adds a particle and its status to the screen buffer
 
 ### Helpers Module
 
-  - `random_num(max_range)`: Generates random numbers
-  - `write_string(string)`: Writes a string into the console output
+  - `int random_num(max_range)`: Generates random numbers
+  - `void write_string(string)`: Writes a string into the console output
 
 ## Stretch Goal
 
