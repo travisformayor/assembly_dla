@@ -21,7 +21,7 @@ together {
 
 package "UI Module" {
   [refresh_display]
-  [draw_particle]
+  [render_particle]
 }
 
 ' Main Connections
@@ -34,7 +34,7 @@ init_particles --> random_num : "set positions"
 random_wiggle --> random_num : " update positions"
 
 ' UI Connections
-refresh_display --> draw_particle : "draw each\n particle on\n the screen"
+refresh_display --> render_particle : "draw each\n particle on\n the screen"
 
 ' Helpers Connections
 

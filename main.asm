@@ -81,12 +81,11 @@ _main_loop:
     call _SetConsoleCursorPosition@8
     ; -- Finish cursor reset
 
-    ; Wiggle all of the particles once
-    ; Loop each particle and add to the screenBuffer with draw_particle
+    ; Loop each particle and wiggle one at a time
     mov particleIndex, 0            ; Particle loop counter = 0
 
 _loop_particles:
-    push particleIndex              ; Add index parameter to draw_particle call
+    push particleIndex              ; Add index for random_wiggle call
     call random_wiggle              ; Wiggle each particle one at a time
 
     inc particleIndex               ; Increment the particle index

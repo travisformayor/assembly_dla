@@ -19,8 +19,8 @@ The program is organized into different modules:
 
 ### UI Module
 
-  - `draw_particle(index)`: Displays the particle on the screen.
-  - `refresh_display()`: Refreshes the display by showing all of the particles on the screen.
+  - `render_particle(index)`: Adds a particle and its status to the screen buffer.
+  - `refresh_display()`: Refreshes the display with an updated screen buffer.
 
 ### Helpers Module
 

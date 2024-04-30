@@ -30,9 +30,9 @@ extern write_string: near
 .code
 ; === void refresh_display() ===
 ; Description:
-;   Sets up the screenBuffer (clear + border), loops the
-;   particles and calls draw_particle on each, and then 
-;   updates the screen by displaying the finished screenBuffer
+;   Sets up the screenBuffer by clearing it then adding the  border and newline 
+;   characters, then loops each particle through render_particle. 
+;   Finally it displays the updated screenBuffer
 ; Parameters: None, directly accesses global data
 ; Registers:
 ;   TODO
@@ -75,12 +75,12 @@ _add_borders:
     rep stosb                    ; Fill the bottom row with '-'
     ; End setting up screenBuffer
 
-    ; Loop each particle and add to the screenBuffer with draw_particle
+    ; Loop each particle and add to the screenBuffer with render_particle
     mov particleIndex, 0            ; Initialize loop counter (particle index)
 
 _loop_start:
-    push particleIndex              ; Add index parameter to draw_particle call
-    call draw_particle              ; Draw the particle at the index
+    push particleIndex              ; Add index parameter to render_particle call
+    call render_particle              ; Draw the particle at the index
 
     inc particleIndex               ; Increment the particle index
     cmp particleIndex, numParticles ; Compare current index with total particles
@@ -99,10 +99,10 @@ _loop_start:
     ret
 refresh_display ENDP
 
-; === void draw_particle(index: DWORD) ===
+; === void render_particle(index: DWORD) ===
 ; Description:
-;   Draws a particle at a given location using a different symbol 
-;   if the state is stuck or unstuck
+;   Includes a particle into the screenBuffer at it's current location and
+;   with a symbol indicating it's status (stuck or unstuck)
 ; Parameters: index (DWORD) of the particle in arrays
 ; Registers:
 ;   EAX - Index of the particle
@@ -110,7 +110,7 @@ refresh_display ENDP
 ;   ECX - y position of the particle
 ;   EDX - Used for status character
 ;   ESI - Used for linear index of 2D location in screenBuffer
-draw_particle PROC
+render_particle PROC
     pop edx             ; Retrieve the return address
     pop eax             ; Get the index of the particle
     push edx            ; Restore the return address for ret
@@ -142,6 +142,6 @@ _update_buffer:
     mov [screenBuffer + esi], dl   ; Place character in buffer at index
 
     ret
-draw_particle ENDP
+render_particle ENDP
 
 END
