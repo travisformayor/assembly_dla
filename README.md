@@ -26,7 +26,6 @@ The program is organized into different modules:
 
   - `random_num(max_range)`: Generates random numbers
   - `write_string(string)`: Writes a string into the console output
-  - `new_line()`: Writes a newline character into the console output
 
 ## Stretch Goal
 

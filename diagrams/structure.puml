@@ -16,7 +16,6 @@ together {
   package "Helpers Module" {
       [write_string]
       [random_num]
-      [new_line]
   }
 }
 
@@ -38,6 +37,5 @@ random_wiggle --> random_num : " update positions"
 refresh_display --> draw_particle : "draw each\n particle on\n the screen"
 
 ' Helpers Connections
-random_num -[Hidden]- new_line
 
 @enduml

@@ -18,7 +18,6 @@ extern _RtlRandomEx@4:near
     seed dd 12345678h       ; Seed value for RtlRandomEx     
     outputHandle  dd 0      ; Console output habndler
     written       dd ?      ; Number of characters written to the console
-    newLine       db 10     ; 10 = "\n" character which creates a newline
 
 .code
 ; === DWORD random_num(max_range: DWORD) ===
@@ -88,17 +87,5 @@ _output_already_set:
 
     ret
 write_string ENDP
-
-; === void new_line() ===
-; Description:
-;   Outputs a newline character to the console
-; Parameters: None
-; Registers: None
-new_line PROC
-    push 1                  ; newline character has a length of 1
-    push offset newLine     ; Push address of the newline string
-    call write_string 
-    ret
-new_line ENDP
 
 END

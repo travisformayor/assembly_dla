@@ -21,9 +21,7 @@ extern _SetConsoleCursorPosition@8: near
 extern init_particles: near
 extern refresh_display: near
 extern random_wiggle: near
-; extern random_num: near
 ; extern write_string: near
-; extern new_line: near
 
 
 ; Global variables
