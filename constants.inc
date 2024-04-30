@@ -1,4 +1,5 @@
 ; constants.inc
-xAxis EQU 40       ; Size of the grid's x-axis
-yAxis EQU 20       ; Size of the grid's y-axis
-numParticles EQU 10 ; Number of particles
+yAxis EQU 28       ; Size of the grid's y-axis
+xAxis EQU 60       ; Size of the grid's x-axis
+numParticles EQU 400 ; Number of particles
+animationPause EQU 50 ; Milliseconds pause when animating

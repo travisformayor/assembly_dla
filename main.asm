@@ -36,14 +36,16 @@ extern random_wiggle: near
     xPositions DWORD numParticles dup(?) ; array of x position for each particle
     yPositions DWORD numParticles dup(?) ; array of y position for each particle
     particleStatus BYTE numParticles dup(0) ; array of particle satus. 0 = unstuck (default), 1 = stuck
-    particleIndex DWORD 0 ; current index position when looping particles
+    stuckCount DWORD 0 ; counter for how many particles are now stuck
 
     wiggleIndex DWORD 0 ; current loop count as particles wiggle
+    particleIndex DWORD 0 ; current index position when looping particles
 
     ; Set vars public so particle.asm and ui.asm can access them
     public xPositions
     public yPositions
     public particleStatus
+    public stuckCount
 
 .code
 ; === void main() ===
@@ -63,7 +65,7 @@ _main:
     call refresh_display    ; Display initial particles
 
     ; Call Sleep to pause (1000 milliseconds = 1 second)
-    push 1000      ; Push the number of milliseconds to sleep
+    push animationPause      ; Push the number of milliseconds to sleep
     call _Sleep@4  ; Call the Sleep function
     
     ; Start looping particle wiggle updates
@@ -83,7 +85,7 @@ _main_loop:
 
     ; Wiggle all of the particles once
     ; Loop each particle and add to the screenBuffer with draw_particle
-    mov particleIndex, 0            ; Initialize particle loop counter
+    mov particleIndex, 0            ; Particle loop counter = 0
 
 _loop_particles:
     push particleIndex              ; Add index parameter to draw_particle call
@@ -97,17 +99,18 @@ _end_particle_loop:
     call refresh_display    ; Display updated particles
 
     ; Call Sleep to pause (1000 milliseconds = 1 second)
-    push 1000      ; Push the number of milliseconds to sleep
+    push animationPause      ; Push the number of milliseconds to sleep
     call _Sleep@4  ; Call the Sleep function
 
     
     inc wiggleIndex               ; Increment the loop counter index
-    cmp wiggleIndex, 10 ; Compare current index with loop goal
-    jl _main_loop               ; Loop until all particles are processed
+    mov eax, DWORD PTR [stuckCount]  ; Load the value at memory address stuckCount into eax
+    cmp eax, numParticles                   ; Compare the values in ecx and eax
+    jl _main_loop               ; Loop until all particles are stuck
 
 _end_main_loop:
 
-    ; TODO: Listen for a keypress to exit the program
+    ; All particles now stuck, end program
     push 0                  ; Exit code
     call _ExitProcess@4     ; Exit the program
 

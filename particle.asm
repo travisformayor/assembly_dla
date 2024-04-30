@@ -22,6 +22,9 @@ extern new_line: near
     extern xPositions:DWORD
     extern yPositions:DWORD
     extern particleStatus:DWORD
+    extern stuckCount:DWORD
+
+    particleIndex DWORD 0 ; current index position when looping particles
 
 .code
 ; === void init_particles() ===
@@ -35,7 +38,9 @@ extern new_line: near
 ;   EDX - Return address
 init_particles PROC
     ; Loop all the particle array variables
-    xor ebx, ebx    ; EBX = 0 (loop counter)
+    ; xor particleIndex, particleIndex    ; particleIndex = 0 (loop counter)
+    mov particleIndex, 0  ; Particle loop counter = 0
+    mov ebx, [particleIndex]  ; Save particleIndex to EBX
 
 _loop_start:
     ; Generate random x position
@@ -57,8 +62,20 @@ _loop_start:
     cmp ebx, numParticles
     jl _loop_start   ; If less than, continue loop
 
-    ; Set the first particle as stuck
-    mov byte ptr [particleStatus], 1
+    ; Overwrite the first particle. Center it and set to stuck
+    mov byte ptr [particleStatus], 1 ; Set the first particle as stuck
+    inc stuckCount
+    ; Set the stuck particle in the middle of the grid
+    mov eax, xAxis      ; Load xAxis into eax
+    xor edx, edx        ; Clear edx for division
+    mov ecx, 2          ; Set divisor to 2
+    div ecx             ; result in eax, remainder in edx
+    mov [xPositions + 0*4], eax  ; Set x to the middle of the grid
+    mov eax, yAxis      ; Load xAxis into eax
+    xor edx, edx        ; Clear edx for division
+    mov ecx, 2          ; Set divisor to 2
+    div ecx             ; result in eax, remainder in edx
+    mov [yPositions + 0*4], eax  ; Set y to the middle of the grid
 
     ret
 init_particles ENDP
@@ -78,12 +95,19 @@ random_wiggle PROC
     pop ebx             ; Pop particle index into EBX
     push edx            ; Push return address back onto the stack for ret
 
+    ; Skip moving the particle if stuck
+    mov al, byte ptr [particleStatus + ebx]  ; Load the status byte at the index into dl
+    cmp al, 1                      ; Compare if particle is unstuck (0)
+    je _dont_move
+
+    mov particleIndex, ebx ; Save particleIndex to protect the value
+
     ; Pick a random movement direction(1 = up, 2 = down, 3 = left, 4 = right)
     push 4              ; 4 possible directions
     call random_num     ; Call random_num to get a direction, result in EAX
     ; add esp, 4          ; Clean up the stack after call
 
-    ; Compare to determin which direction was picked
+    ; Compare to determine which direction was picked
     cmp eax, 1
     je _move_up
     cmp eax, 2
@@ -92,57 +116,188 @@ random_wiggle PROC
     je _move_left
     cmp eax, 4
     je _move_right
-    ; jmp _dont_move
 
 _move_up: ; Move particle up
+    mov ebx, [particleIndex]  ; Save particleIndex to EBX
     mov ecx, [yPositions + ebx*4]  ; Load current y-coordinate into ECX
     dec ecx                        ; Decrement y to move up (grid printed top-down)
     cmp ecx, 1                     ; Check if move is out-of-bounds
-    jl _dont_move                   ; Stop if new y < 1 (row 0 is the border)
+    jl _dont_move                  ; Stop if new y < 1 (row 0 is the border)
     mov [yPositions + ebx*4], ecx  ; Safe to move. Update y-value
-    jmp _check_stuck                ; Check if touching a stuck particle
+    jmp _check_stuck               ; Check if touching a stuck particle
 
 _move_down: ; Move particle down
+    mov ebx, [particleIndex]  ; Save particleIndex to EBX
     mov ecx, [yPositions + ebx*4]  ; Load current y-coordinate into ECX
     inc ecx                        ; Increment y to move down
     cmp ecx, yAxis - 1             ; Check if move is out-of-bounds
-    jge _dont_move                  ; Stop if new y >= yAxis-1 (last row is the border)
+    jge _dont_move                 ; Stop if new y >= yAxis-1 (last row is the border)
     mov [yPositions + ebx*4], ecx  ; Safe to move. Update y-value
-    jmp _check_stuck                ; Check if touching a stuck particle
+    jmp _check_stuck               ; Check if touching a stuck particle
 
 _move_left: ; Move particle left
+    mov ebx, [particleIndex]  ; Save particleIndex to EBX
     mov ecx, [xPositions + ebx*4]  ; Load current x-coordinate into ECX
     dec ecx                        ; Decrement x to move left
     cmp ecx, 1                     ; Check if move is out-of-bounds
-    jl _dont_move                   ; Stop if new x < 1 (column 0 is the border)
+    jl _dont_move                  ; Stop if new x < 1 (column 0 is the border)
     mov [xPositions + ebx*4], ecx  ; Safe to move. Update x-value
-    jmp _check_stuck                ; Check if touching a stuck particle
+    jmp _check_stuck               ; Check if touching a stuck particle
 
 _move_right: ; Move particle right
+    mov ebx, [particleIndex]  ; Save particleIndex to EBX
     mov ecx, [xPositions + ebx*4]  ; Load current x-coordinate into ECX
     inc ecx                        ; Increment x to move right
     cmp ecx, xAxis - 2             ; Check if move is out-of-bounds
-    jge _dont_move                  ; Stop if new x >= xAxis-2 (last 2 column used (border, newlin))
+    jge _dont_move                 ; Stop if new x >= xAxis-2 (last columns are border and newline)
     mov [xPositions + ebx*4], ecx  ; Safe to move. Update x-value
-    jmp _check_stuck                ; Check if touching a stuck particle
+    jmp _check_stuck               ; Check if touching a stuck particle
 
 _check_stuck:
-    ; TODO
-    ; ; Check adjacent positions for stuck particles (assuming grid as linear array)
-    ; ; This requires handling to convert 2D checks to linear array indexing
-    ; ; Assume function 'is_adjacent_stuck' performs this check
-    ; push ebx             ; Save index
-    ; call is_adjacent_stuck
-    ; pop ebx              ; Restore index
-    ; cmp eax, 1
-    ; je make_stuck
-    ; jmp _dont_move
+    ; Check if the particle is touching a stuck particles
+    push particleIndex                       ; Pass particle index
+    call check_touching_stuck
+    ; pop particleIndex                        ; Restore index
+    cmp eax, 1                     ; Check if any adjacent particles are stuck
+    jne _dont_stick
 
-; make_stuck:
-;     mov byte ptr [particleStatus + ebx], 1   ; Set current particle as stuck
+    ; Set the particle as stuck
+    mov ebx, [particleIndex]  ; Save particleIndex to EBX
+    mov byte ptr [particleStatus + ebx], 1  ; Set the status at index EBX to 1 (stuck)
+    inc stuckCount
+
+_dont_stick:
 
 _dont_move:
-    ret                 ; Return to caller
+    ret                              ; Return to caller
 random_wiggle ENDP
+
+; === BOOL check_touching_stuck(particle_index: DWORD) ===
+; Description:
+;   Checks if any adjacent particles (up, down, left, right) are stuck
+; Parameters: Particle index
+; Return: 1 if any adjacent particle is stuck, otherwise 0
+; Registers:
+;   EAX, EBX, ECX used for calculations and conditions
+;   Uses global arrays: xPositions, yPositions, particleStatus
+check_touching_stuck PROC
+    ; Load particle index into EBX
+    pop ebx                  ; Pop return address
+    pop ecx                  ; Pop particle index into ECX
+    push ebx                 ; Push return address back
+
+    ; Check left (x-1)
+    ; Load x and y positions for this particle
+    mov ebx, [xPositions + ecx*4]  ; x position of current particle
+    mov edx, [yPositions + ecx*4]  ; y position of current particle
+    dec ebx
+    push ecx                  ; Preserve ECX across calls
+    push edx                  ; y remains the same
+    push ebx                  ; x-1
+    call is_stuck             ; Check if (x-1, y) is stuck
+    pop ecx                   ; Restore ECX after call
+    test eax, eax             ; Check return value
+    jnz _found_stuck          ; If non-zero, particle is stuck
+
+    ; Check right (x+1)
+    ; Load x and y positions for this particle
+    mov ebx, [xPositions + ecx*4]  ; x position of current particle
+    mov edx, [yPositions + ecx*4]  ; y position of current particle
+    inc ebx                        ; x+1 
+    push ecx
+    push edx
+    push ebx
+    call is_stuck
+    pop ecx
+    test eax, eax
+    jnz _found_stuck
+
+    ; Check up (y-1)
+    ; Load x and y positions for this particle
+    mov ebx, [xPositions + ecx*4]   ; x position of current particle
+    mov edx, [yPositions + ecx*4]   ; y position of current particle
+    dec edx                         ; y-1
+    push ecx
+    push edx
+    push ebx
+    call is_stuck
+    pop ecx
+    test eax, eax
+    jnz _found_stuck
+
+    ; Check down (y+1)
+    mov ebx, [xPositions + ecx*4]   ; x position of current particle
+    mov edx, [yPositions + ecx*4]   ; y position of current particle
+    inc edx                         ; y+1 
+    push ecx
+    push edx
+    push ebx
+    call is_stuck
+    pop ecx
+    test eax, eax
+    jnz _found_stuck
+
+    ; If no adjacent particles are stuck
+    xor eax, eax               ; Return 0 (false)
+    jmp _return
+
+_found_stuck:
+    mov eax, 1                 ; Return 1 (true)
+
+_return:
+    ret
+
+check_touching_stuck ENDP
+
+; === BOOL is_stuck(x: DWORD, y: DWORD) ===
+; Description:
+;   Checks if a particle at a given (x, y) coordinate is stuck.
+; Parameters: x, y coordinates passed via stack
+; Return: 1 if a particle at (x, y) is stuck, otherwise 0
+; Registers:
+;   EAX - used for comparison and return value
+;   EBX - loop counter and index finder
+;   ECX - x coordinate
+;   EDX - y coordinate
+;   Uses global arrays: xPositions, yPositions, particleStatus
+is_stuck PROC
+    pop ebx             ; Pop return address
+    pop ecx             ; Pop x coordinate into ECX
+    pop edx             ; Pop y coordinate into EDX
+    push ebx            ; Push return address back
+
+    xor ebx, ebx        ; EBX will serve as the index for the loop
+_loop_start:
+    ; Compare x coordinate
+    mov eax, [xPositions + ebx * 4]  ; Get the x position of the current index
+    cmp eax, ecx                     ; Compare it to the passed x coordinate
+    jne _next_index                  ; Jump if not equal
+
+    ; Compare y coordinate
+    mov eax, [yPositions + ebx * 4]  ; Get the y position of the current index
+    cmp eax, edx                     ; Compare it to the passed y coordinate
+    jne _next_index                  ; Jump if not equal
+
+    ; Check if the particle at this index is stuck
+    mov al, byte ptr [particleStatus + ebx]   ; Get the status of the particle
+    cmp al, 1                        ; Check if it is stuck
+    je _is_stuck                     ; If stuck, return 1
+
+_next_index:
+    inc ebx                          ; Increment the index
+    cmp ebx, numParticles            ; Compare index against total number of particles
+    jl _loop_start                   ; Loop if there are more particles to check
+
+    ; If no stuck particle is found at the given coordinates
+    xor eax, eax                     ; Return 0 (false)
+    jmp _return
+
+_is_stuck:
+    mov eax, 1                       ; Set return value to 1 (true)
+
+_return:
+    ret                              ; Return to caller
+
+is_stuck ENDP
 
 END

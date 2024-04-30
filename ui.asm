@@ -125,11 +125,11 @@ draw_particle PROC
 
     cmp dl, 0                      ; Compare if particle is unstuck (0)
     je _display_unstuck
-    mov dl, '*'                    ; Replace 1 with char for stuck particle
+    mov dl, 'o'                    ; Replace 1 with char for stuck particle
     jmp _update_buffer
 
 _display_unstuck:
-    mov dl, 'o'                    ; Replace 0 with char for unstuck particle
+    mov dl, '.'                    ; Replace 0 with char for unstuck particle
 
 _update_buffer:
     ; Calculate index for a linear version of a 2D array
