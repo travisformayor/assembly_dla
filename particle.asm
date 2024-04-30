@@ -88,7 +88,7 @@ init_particles ENDP
 ; Parameters: Particle index
 ; Return: None, directly updates global data
 ; Registers:
-
+;   EAX - 
 random_wiggle PROC
     ; Handle return address and parameters
     pop edx             ; Pop return address off the stack
@@ -251,44 +251,43 @@ check_touching_stuck ENDP
 
 ; === BOOL is_stuck(x: DWORD, y: DWORD) ===
 ; Description:
-;   Checks if a particle at a given (x, y) coordinate is stuck.
+;   Searches for any stuck particles at a given (x, y) coordinates.
 ; Parameters: x, y coordinates passed via stack
 ; Return: 1 if a particle at (x, y) is stuck, otherwise 0
 ; Registers:
 ;   EAX - used for comparison and return value
-;   EBX - loop counter and index finder
+;   ESI - loop counter and particle index
 ;   ECX - x coordinate
 ;   EDX - y coordinate
-;   Uses global arrays: xPositions, yPositions, particleStatus
 is_stuck PROC
     pop ebx             ; Pop return address
     pop ecx             ; Pop x coordinate into ECX
     pop edx             ; Pop y coordinate into EDX
     push ebx            ; Push return address back
 
-    xor ebx, ebx        ; EBX will serve as the index for the loop
+    xor esi, esi        ; Use ESI for the loop index
 _loop_start:
     ; Compare x coordinate
-    mov eax, [xPositions + ebx * 4]  ; Get the x position of the current index
-    cmp eax, ecx                     ; Compare it to the passed x coordinate
-    jne _next_index                  ; Jump if not equal
+    mov eax, [xPositions + esi * 4]  ; Get x position the current index
+    cmp eax, ecx                     ; Check for a match
+    jne _next_index                  ; Skip (!=) if not a match for x
 
     ; Compare y coordinate
-    mov eax, [yPositions + ebx * 4]  ; Get the y position of the current index
-    cmp eax, edx                     ; Compare it to the passed y coordinate
-    jne _next_index                  ; Jump if not equal
+    mov eax, [yPositions + esi * 4]  ; Get the y position of the current index
+    cmp eax, edx                     ; Check for a match
+    jne _next_index                  ; Skip (!=) if not a match for y
 
-    ; Check if the particle at this index is stuck
-    mov al, byte ptr [particleStatus + ebx]   ; Get the status of the particle
+    ; Found a match. Check if the particle is stuck
+    mov al, byte ptr [particleStatus + esi]   ; Get the status of the particle
     cmp al, 1                        ; Check if it is stuck
-    je _is_stuck                     ; If stuck, return 1
+    je _is_stuck                     ; Found a match with stuck particle
 
 _next_index:
-    inc ebx                          ; Increment the index
-    cmp ebx, numParticles            ; Compare index against total number of particles
+    inc esi                          ; Increment the index
+    cmp esi, numParticles            ; Compare index against total number of particles
     jl _loop_start                   ; Loop if there are more particles to check
 
-    ; If no stuck particle is found at the given coordinates
+    ; No match found for the given coordinates
     xor eax, eax                     ; Return 0 (false)
     jmp _return
 
