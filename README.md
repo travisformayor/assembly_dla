@@ -1,10 +1,20 @@
 # DLA (Diffusion-Limited Aggregation) in Assembly 
 
+<!-- GIF Image -->
+<p align="center">
+  <img src="images/assembly_dla.gif" width="50%" alt="Preview Animation"/>
+</p>
+
 ## Overview
 Diffusion-Limited Aggregation is an algorithm that can be used in generative art to create interesting and organic structures. It uses a simple concept of particles that randomly "wiggle" until they touch and stick to a larger structure of particles (aka the "aggregate"). This creates the effect of the aggregate appearing to diffuse through the limited field of particles, hence the name. This project implements a simple version of DLA in assembly code.
 
 ## Modules
 The program is organized into different modules:
+
+<!-- SVG Image -->
+<p align="center">
+  <img src="diagrams/structure.svg" width="80%" alt="Program Structure Diagram"/>
+</p>
 
 ### Main Module
 
@@ -31,4 +41,4 @@ The program is organized into different modules:
 
 ## Stretch Goal
 
-- User controls: repeat with seed in center, repeat with seeds on bottom row
+- Add user controls: repeat with seed in center, repeat with seeds on bottom row
